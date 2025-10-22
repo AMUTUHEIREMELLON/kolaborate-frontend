@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button, Form as BootstrapForm } from 'react-bootstrap';
 import axios from 'axios';
+import { API_URL } from '../utils/config';
 
 const AddProfileForm = ({ onProfileAdded }) => {
   const validationSchema = Yup.object({
@@ -14,21 +15,28 @@ const AddProfileForm = ({ onProfileAdded }) => {
     hourlyRate: Yup.number().min(0).required('Hourly rate is required'),
   });
 
-  const handleSubmit = (values, { resetForm }) => {
-    axios.post('http://localhost:5000/api/profiles', {
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  console.log('Form submitted with values:', values);
+  try {
+    const skillsArray = values.skills.split(',').map(skill => skill.trim());
+    const payload = {
       ...values,
-      skills: values.skills.split(',').map(skill => skill.trim()),
-      experienceYears: parseInt(values.experienceYears),
-      hourlyRate: parseInt(values.hourlyRate),
+      skills: skillsArray,
+      experienceYears: parseInt(values.experienceYears, 10),
+      hourlyRate: parseInt(values.hourlyRate, 10),
       availableForWork: values.availableForWork || true,
-    })
-      .then(() => {
-        alert('Profile added successfully!');
-        resetForm();
-        if (onProfileAdded) onProfileAdded();
-      })
-      .catch(error => console.error('Error adding profile:', error));
-  };
+    };
+    await axios.post(`${API_URL}`, payload);
+    alert('Profile added successfully!');
+    resetForm();
+    if (onProfileAdded) onProfileAdded();
+  } catch (error) {
+    console.error('Add profile error:', error);
+    alert(`Failed to add profile: ${error.response?.data?.error || error.message}`);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="mb-4">

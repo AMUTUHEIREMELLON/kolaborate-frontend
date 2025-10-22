@@ -3,9 +3,10 @@ import axios from 'axios';
 import { Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AddProfileForm from '../components/AddProfileForm';
-
+import { API_URL } from '../utils/config';
 const Dashboard = () => {
   const [profiles, setProfiles] = useState([]);
+  const [totalProfiles, setTotalProfiles] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -16,17 +17,15 @@ const Dashboard = () => {
     fetchProfiles();
   }, [page, searchTerm]);
 
-  const fetchProfiles = () => {
-    const url = searchTerm
-      ? `http://localhost:5000/api/profiles/search?skills=${searchTerm}`
-      : `http://localhost:5000/api/profiles?page=${page}&limit=${limit}`;
-    axios.get(url)
-      .then(response => {
-        setProfiles(response.data.profiles || response.data);
-        setTotal(response.data.total || response.data.length);
-      })
-      .catch(error => console.error('Error fetching profiles:', error));
-  };
+  const fetchProfiles = async (page = 1, limit = 6) => {
+  try {
+    const response = await axios.get(`${API_URL}?page=${page}&limit=${limit}`);
+    setProfiles(response.data.profiles);
+    setTotalProfiles(response.data.total);
+  } catch (error) {
+    console.error('Error fetching profiles:', error);
+  }
+};
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= Math.ceil(total / limit)) setPage(newPage);

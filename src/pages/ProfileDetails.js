@@ -4,23 +4,24 @@ import axios from 'axios';
 import { Card, Button, Form } from 'react-bootstrap';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { API_URL } from '../utils/config';
 
 const ProfileDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
-    console.log('Fetching profile with ID:', id);
-    if (!id) {
-      console.error('No ID provided');
-      return;
-    }
-    axios
-      .get(`http://localhost:5000/api/profiles/${id}`)
-      .then((response) => setProfile(response.data))
-      .catch((error) => console.error('Fetch error:', error));
-  }, [id]);
+ useEffect(() => {
+  console.log('Fetching profile with ID:', id);
+  if (!id) {
+    console.error('No ID provided');
+    return;
+  }
+  axios
+    .get(`${API_URL}/api/profiles/${id}`)
+    .then((response) => setProfile(response.data))
+    .catch((error) => console.error('Fetch error:', error));
+}, [id]);
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
@@ -33,32 +34,17 @@ const ProfileDetails = () => {
   });
 
   const handleUpdate = async (values) => {
-    console.log('Attempting to update profile with ID:', id, 'Data:', values);
-    const updateData = {
-      ...values,
-      skills: values.skills.split(',').map(skill => skill.trim()),
-      experienceYears: parseInt(values.experienceYears, 10) || 0,
-      hourlyRate: parseInt(values.hourlyRate, 10) || 0,
-      availableForWork: Boolean(values.availableForWork),
-    };
-    console.log('Data being sent:', updateData);
-    try {
-      const response = await axios.put(`http://localhost:5000/api/profiles/${id}`, updateData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      console.log('Update successful, response:', response.data);
-      alert('Profile updated successfully!');
-      navigate('/');
-    } catch (error) {
-      console.error('Update failed:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data || 'No response data',
-        url: error.config?.url,
-      });
-      alert(`Update failed: ${error.response?.data?.error || error.message}`);
-    }
-  };
+  const updateData = { ...values, skills: values.skills.split(',').map(skill => skill.trim()), experienceYears: parseInt(values.experienceYears, 10) || 0, hourlyRate: parseInt(values.hourlyRate, 10) || 0, availableForWork: Boolean(values.availableForWork) };
+  try {
+    const response = await axios.put(`${API_URL}/api/profiles/${id}`, updateData, { headers: { 'Content-Type': 'application/json' } });
+    console.log('Update successful, response:', response.data);
+    alert('Profile updated successfully!');
+    navigate('/');
+  } catch (error) {
+    console.error('Update failed:', error);
+    alert(`Update failed: ${error.response?.data?.error || error.message}`);
+  }
+};
 
   if (!profile) return <div>Loading...</div>;
 

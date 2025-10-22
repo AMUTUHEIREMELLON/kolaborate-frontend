@@ -26,7 +26,7 @@ const AddProfileForm = ({ onProfileAdded }) => {
       hourlyRate: parseInt(values.hourlyRate, 10),
       availableForWork: values.availableForWork || true,
     };
-    await axios.post(`${API_URL}`, payload);
+    const response = await axios.post(`${API_URL}/api/profiles`, payload);
     alert('Profile added successfully!');
     resetForm();
     if (onProfileAdded) onProfileAdded();

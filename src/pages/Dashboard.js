@@ -29,9 +29,28 @@ const Dashboard = () => {
       console.log("Fetch response:", response.data);
       setProfiles(response.data.profiles);
       setTotal(response.data.total);
-
     } catch (error) {
       console.error("Error fetching profiles:", error);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      if (!searchTerm || !searchTerm.trim()) {
+        fetchProfiles(page, limit);
+        return;
+      }
+      const response = await axios.get(
+        `${API_URL}/api/profiles/search?skills=${encodeURIComponent(
+          searchTerm.trim()
+        )}`
+      );
+      console.log("Search response:", response.data);
+      setProfiles(response.data);
+      setTotal(response.data.length || 0);
+      setPage(1); // reset to first page for search results
+    } catch (error) {
+      console.error("Error searching profiles:", error);
     }
   };
 
@@ -49,7 +68,7 @@ const Dashboard = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by skills (e.g., React)"
           />
-          <Button variant="primary" onClick={fetchProfiles} className="mt-2">
+          <Button variant="primary" onClick={handleSearch} className="mt-2">
             Search
           </Button>
         </Form.Group>

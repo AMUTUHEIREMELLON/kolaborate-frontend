@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import AddProfileForm from '../components/AddProfileForm';
-import { API_URL } from '../utils/config';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Row, Col, Card, Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import AddProfileForm from "../components/AddProfileForm";
+import { API_URL } from "../utils/config";
 const Dashboard = () => {
   const [profiles, setProfiles] = useState([]);
   const [totalProfiles, setTotalProfiles] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 6;
@@ -18,14 +18,17 @@ const Dashboard = () => {
   }, [page, searchTerm]);
 
   const fetchProfiles = async (page = 1, limit = 6) => {
-  try {
-    const response = await axios.get(`${API_URL}?page=${page}&limit=${limit}`);
-    setProfiles(response.data.profiles);
-    setTotalProfiles(response.data.total);
-  } catch (error) {
-    console.error('Error fetching profiles:', error);
-  }
-};
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/profiles?page=${page}&limit=${limit}`
+      );
+      console.log("Fetch response:", response.data);
+      setProfiles(response.data.profiles);
+      setTotalProfiles(response.data.total);
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
+    }
+  };
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= Math.ceil(total / limit)) setPage(newPage);
@@ -48,15 +51,17 @@ const Dashboard = () => {
       </Form>
       <AddProfileForm onProfileAdded={fetchProfiles} />
       <Row>
-        {profiles.map(profile => (
+        {profiles.map((profile) => (
           <Col key={profile._id} xs={12} sm={6} md={4} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>{profile.name}</Card.Title>
                 <Card.Text>
-                  <strong>Location:</strong> {profile.location}<br />
-                  <strong>Rate:</strong> ${profile.hourlyRate}/hr<br />
-                  <strong>Skills:</strong> {profile.skills.join(', ')}
+                  <strong>Location:</strong> {profile.location}
+                  <br />
+                  <strong>Rate:</strong> ${profile.hourlyRate}/hr
+                  <br />
+                  <strong>Skills:</strong> {profile.skills.join(", ")}
                 </Card.Text>
                 <Button
                   variant="info"
@@ -77,7 +82,9 @@ const Dashboard = () => {
         >
           Previous
         </Button>
-        <span className="mx-3">Page {page} of {Math.ceil(total / limit)}</span>
+        <span className="mx-3">
+          Page {page} of {Math.ceil(total / limit)}
+        </span>
         <Button
           variant="secondary"
           onClick={() => handlePageChange(page + 1)}

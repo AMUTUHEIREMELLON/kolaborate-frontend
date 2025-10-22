@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL } from "../utils/config";
 
 const ProfileList = () => {
   const [profiles, setProfiles] = useState([]);
@@ -8,12 +9,13 @@ const ProfileList = () => {
   const limit = 10;
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/profiles?page=${page}&limit=${limit}`)
-      .then(response => {
+    axios
+      .get(`${API_URL}/api/profiles?page=${page}&limit=${limit}`)
+      .then((response) => {
         setProfiles(response.data.profiles);
         setTotal(response.data.total);
       })
-      .catch(error => console.error('Error fetching profiles:', error));
+      .catch((error) => console.error("Error fetching profiles:", error));
   }, [page]);
 
   const handlePageChange = (newPage) => {
@@ -26,7 +28,7 @@ const ProfileList = () => {
     <div>
       <h2>Profiles</h2>
       <ul>
-        {profiles.map(profile => (
+        {profiles.map((profile) => (
           <li key={profile._id}>
             {profile.name} - {profile.location} - ${profile.hourlyRate}/hr
             <ul>
@@ -40,8 +42,14 @@ const ProfileList = () => {
       <button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
         Previous
       </button>
-      <span> Page {page} of {Math.ceil(total / limit)} </span>
-      <button onClick={() => handlePageChange(page + 1)} disabled={page === Math.ceil(total / limit)}>
+      <span>
+        {" "}
+        Page {page} of {Math.ceil(total / limit)}{" "}
+      </span>
+      <button
+        onClick={() => handlePageChange(page + 1)}
+        disabled={page === Math.ceil(total / limit)}
+      >
         Next
       </button>
     </div>

@@ -4,12 +4,12 @@ import { Row, Col, Card, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import AddProfileForm from "../components/AddProfileForm";
 import { API_URL } from "../utils/config";
+
 const Dashboard = () => {
   const [profiles, setProfiles] = useState([]);
-  const [totalProfiles, setTotalProfiles] = useState(0);
+  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const limit = 6;
   const navigate = useNavigate();
 
@@ -17,14 +17,19 @@ const Dashboard = () => {
     fetchProfiles();
   }, [page, searchTerm]);
 
-  const fetchProfiles = async (page = 1, limit = 6) => {
+  const fetchProfiles = async () => {
     try {
+      const url = searchTerm
+        ? `${API_URL}/api/profiles/search?skills=${searchTerm}&page=${page}&limit=${limit}`
+        : `${API_URL}/api/profiles?page=${page}&limit=${limit}`;
       const response = await axios.get(
         `${API_URL}/api/profiles?page=${page}&limit=${limit}`
       );
+
       console.log("Fetch response:", response.data);
       setProfiles(response.data.profiles);
-      setTotalProfiles(response.data.total);
+      setTotal(response.data.total);
+
     } catch (error) {
       console.error("Error fetching profiles:", error);
     }
